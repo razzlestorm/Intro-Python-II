@@ -1,6 +1,6 @@
 from item import Item
 from player import Player
-from randomizer import *
+from randomizer import adj_randomizer, DESCRIPTORS, populate_room
 from room import Room
 import os
 import textwrap
@@ -34,15 +34,16 @@ rooms = {
 
 
 items = {
-        'knife': Item('knife', 'A short, sharp shiv.'),
-		'torch': Item('torch', 'A source of light!')
-}                                   
+         'knife': Item('knife', 'A short, sharp shiv.'),
+         'torch': Item('torch', 'A source of light!')
+        }
 
 # Create a randomized list of items as the game starts.
 items = {key: adj_randomizer(DESCRIPTORS, val) for (key, val) in items.items()}
 
 # Populate rooms with items.
-rooms = {key: populate_room(room, list(items.values())) for (key, room) in rooms.items()}
+rooms = {key: populate_room(room, list(items.values()))
+         for (key, room) in rooms.items()}
 print(f'Total items: {[x.name for i in rooms.values() for x in i.inventory]}')
 
 # To do: Update room descs with item names
@@ -88,7 +89,7 @@ and you can "take" or "get" items. To move in a certain direction, simply
 type the direction you'd like to go! You can also just use the first letter
 of that direction, like typing "n" for "North". When you're done,
 type 'q' to quit. Most importantly, have fun!
-				   '''
+'''
 welcome_message = textwrap.fill(welcome_message, WIDTH//2)
 print(OPEN_WRAP)
 print(welcome_message)
@@ -103,12 +104,32 @@ while game_loop:
 
     # * Waits for user input and decides what to do.
     action = input(
-                   (f'What would you like to do?\n> ')).strip().lower()
+                   ('What would you like to do?\n> ')).strip().lower()
 
     # If player tries to take or get, call method to handle command
     if action.startswith('take') or action.startswith('get'):
         print(OPEN_WRAP)
-        player1 = player1.update_inventory(action)
+        player1 = player1.add_to_inventory(action)
+        print(CLOSE_WRAP)
+
+    elif action.startswith('drop'):
+        print(OPEN_WRAP)
+        player1 = player1.remove_from_inventory(action)
+        print(CLOSE_WRAP)
+
+    elif action.startswith('exam') or action.startswith('look'):
+        print(OPEN_WRAP)
+        query = action.split(' ')[1:]
+        # Check if player's query is anywhere close, then print that item
+        for word in query:
+            for i in player1.cur_room.inventory + list(
+                                                  player1.inventory.keys()):
+                if word in i.name:
+                    print(i)
+                else:
+                    print(f"You search for a {' '.join(query)},"
+                          f" but don't see anything.")
+
         print(CLOSE_WRAP)
 
     elif action in ('i', 'inv', 'inventory'):
@@ -123,12 +144,11 @@ while game_loop:
         print(CLOSE_WRAP)
         game_loop = False
     else:
-	    # If the user enters a cardinal direction, try to move to the room there.
-	    # Print an error message if the movement isn't allowed.
+        # If the user enters a cardinal direction, try to move to that room.
+        # Print an error message if the movement isn't allowed.
         print(OPEN_WRAP)
         player1.cur_room = player1.update_room(action)
         print(CLOSE_WRAP)
-        #print('--------------------\n'.rjust(WIDTH//4))
         directions = [i[0].upper() for i
-                      in [*player1.cur_room.__dict__.keys()][2:]]
+                      in [*player1.cur_room.__dict__.keys()][3:]]
         print(f"Available directions are: {directions}\n")

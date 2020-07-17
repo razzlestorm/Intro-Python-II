@@ -23,7 +23,7 @@ rooms = {
                          across the chasm."""),
 
         'narrow': Room("Narrow Passage",
-                       """The narrow passage bends here from west to north. "
+                       """The narrow passage bends here from west to north.
                        The smell of gold permeates the air."""),
 
         'treasure': Room("Treasure Chamber",
@@ -36,16 +36,22 @@ rooms = {
 items = {
         'knife': Item('knife', 'A short, sharp shiv.'),
 		'torch': Item('torch', 'A source of light!')
-}
+}                                   
 
 # Create a randomized list of items as the game starts.
-print(rooms)
 items = {key: adj_randomizer(DESCRIPTORS, val) for (key, val) in items.items()}
+
+# Populate rooms with items.
 rooms = {key: populate_room(room, list(items.values())) for (key, room) in rooms.items()}
 print(f'Total items: {[x.name for i in rooms.values() for x in i.inventory]}')
-# Create list of items
-# Link rooms together
 
+# To do: Update room descs with item names
+
+# Allow player to see item descs when checking inventory
+
+# Allow player to use the 'look' command to inspect items/rooms
+
+# Link rooms together
 rooms['outside'].n_to = rooms['foyer']
 rooms['foyer'].s_to = rooms['outside']
 rooms['foyer'].n_to = rooms['overlook']

@@ -34,8 +34,13 @@ class Player:
 
     def update_inventory(self, player_input):
         item = player_input.split(' ')[1:]
-        if any(word in item for item in self.cur_room.inventory):
+        condition = [word for word in item]
+        print(f'input: {item}, condition: {condition}')
+        print(f'room inventory: {[i.name for i in self.cur_room.inventory]}')
+        print([x for x in condition if x in str([i.name for i in self.cur_room.inventory])])
+        if any([x for x in condition if x in str([i.name for i in self.cur_room.inventory])]):
             print(f"You take the {' '.join(item)} and put it in your pack.")
+            self.inventory[' '.join(item)] = 0
             self.inventory[' '.join(item)] += 1
             return self
         else:
@@ -48,6 +53,7 @@ class Player:
             print("You do not have anything in your inventory!")
         else:
             print('Your inventory contains the following:')
-            for k, v in self.inventory:
-                print(f'{v} {x}\n')
+            print(self.inventory)
+            for k, v in self.inventory.items():
+                print(f'{v} {k}\n')
         return self
